@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --primary-light: #eff6ff;
+    }
+
+    body {
+        @apply font-sans antialiased text-gray-900 bg-gray-50;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-semibold tracking-tight;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Smooth scrolling for the whole page */
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+@layer components {
+
+    /* Glassmorphism effects */
+    .glass {
+        @apply bg-white/70 backdrop-blur-md border border-white/20;
+    }
+
+    .glass-dark {
+        @apply bg-gray-900/70 backdrop-blur-md border border-white/10;
+    }
+
+    /* Premium Card Design */
+    .premium-card {
+        @apply bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500;
+    }
+
+    /* Smooth Interaction Utilities */
+    .hover-lift {
+        @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    }
+
+    .interactive-glow:hover {
+        @apply shadow-[0_0_20px_rgba(37, 99, 235, 0.15)];
+    }
+
+    /* Custom Status Badges if needed over standard ones */
+    .status-badge {
+        @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest;
+    }
+}
+
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full hover:bg-gray-400 transition-colors;
+}
+
+/* Text Selection Styling */
+::selection {
+    @apply bg-blue-600/10 text-blue-600;
+}
+
+/* Premium Animations */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes slow-fade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: slow-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Responsive Table container styling */
+.table-container {
+    @apply relative overflow-x-auto rounded-xl border border-gray-100;
+}
+
+.table-container table {
+    @apply w-full text-left text-sm;
+}
+
+.table-container th {
+    @apply px-6 py-4 bg-gray-50/50 font-bold text-gray-400 uppercase tracking-widest text-[10px];
+}
+
+.table-container td {
+    @apply px-6 py-4 border-t border-gray-50;
+}
