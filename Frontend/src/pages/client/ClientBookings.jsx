@@ -127,7 +127,20 @@ export default function ClientBookings() {
 
                                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
                                         <span className="flex items-center gap-1.5"><Clock size={16} className="text-gray-400" /> {booking.startTime} - {booking.endTime}</span>
-                                        <span className="flex items-center gap-1.5"><MapPin size={16} className="text-gray-400" /> {booking.location}</span>
+                                        <span className="flex items-center gap-1.5">
+                                            <MapPin size={16} className="text-gray-400" />
+                                            {booking.location}
+                                            {booking.latitude && booking.longitude && (
+                                                <a
+                                                    href={`https://www.google.com/maps?q=${booking.latitude},${booking.longitude}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-indigo-600 hover:underline ml-2 text-xs font-bold"
+                                                >
+                                                    (View On Map)
+                                                </a>
+                                            )}
+                                        </span>
                                     </div>
 
                                     {/* Mobile Date */}

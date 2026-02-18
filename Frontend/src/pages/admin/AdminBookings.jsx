@@ -195,7 +195,18 @@ export default function AdminBookings() {
                         <CalIcon size={12} /> {formatDate(booking.eventDate)}
                       </div>
                       <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                        <MapPin size={12} /> {booking.location}
+                        <MapPin size={12} />
+                        {booking.location}
+                        {booking.latitude && booking.longitude && (
+                          <a
+                            href={`https://www.google.com/maps?q=${booking.latitude},${booking.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline ml-1"
+                          >
+                            (Map)
+                          </a>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">

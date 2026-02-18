@@ -2,7 +2,8 @@ import { useReducer, useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { apiService as api } from "../../services/api";
 import { useToast } from "../../store/contexts/ToastContext";
-import { Camera, Check, MapPin, ChevronLeft, User } from "lucide-react";
+import { Camera, Check, MapPin, ChevronLeft, User, Map as MapIcon } from "lucide-react";
+import LocationPicker from "../../components/common/LocationPicker";
 
 const initialState = {
   photographerId: "",
@@ -10,6 +11,8 @@ const initialState = {
   startTime: "10:00",
   endTime: "18:00",
   location: "",
+  latitude: null,
+  longitude: null,
   eventType: "Wedding",
   selectedPackage: "gold",
   loading: false,
@@ -34,7 +37,7 @@ function reducer(state, action) {
 export default function CreateBooking() {
   const [searchParams] = useSearchParams();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { photographerId, date, startTime, endTime, location, eventType, selectedPackage, loading } = state;
+  const { photographerId, date, startTime, endTime, location, latitude, longitude, eventType, selectedPackage, loading } = state;
   const [photographers, setPhotographers] = useState([]);
   const [fetchingPhotographers, setFetchingPhotographers] = useState(false);
 
@@ -95,6 +98,8 @@ export default function CreateBooking() {
         startTime,
         endTime,
         location,
+        latitude,
+        longitude,
         eventType,
         package: selectedPackage
       });
@@ -197,19 +202,34 @@ export default function CreateBooking() {
         </div>
 
         {/* Location */}
-        <div className="space-y-2">
-          <label className="text-sm font-bold text-gray-700 block ml-1">Venue / Location</label>
+        <div className="space-y-4">
+          <label className="text-sm font-bold text-gray-700 block ml-1 flex items-center gap-2">
+            <MapIcon size={16} className="text-indigo-500" /> Select Venue on Map
+          </label>
+
+          <LocationPicker
+            selectedPosition={latitude && longitude ? [latitude, longitude] : null}
+            onPositionChange={(pos) => {
+              handleFieldChange("latitude", pos[0]);
+              handleFieldChange("longitude", pos[1]);
+            }}
+            onAddressChange={(addr) => handleFieldChange("location", addr)}
+          />
+
           <div className="relative group">
             <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
             <input
               type="text"
               required
-              placeholder="e.g. Grand Hyatt, Goa"
+              placeholder="e.g. Grand Hyatt, Goa (or select on map)"
               value={location}
               onChange={(e) => handleFieldChange("location", e.target.value)}
               className="w-full bg-gray-50 border border-transparent rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none placeholder:text-gray-300"
             />
           </div>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-1">
+            Tip: Click on the map to automatically set the location and coordinates.
+          </p>
         </div>
 
         {/* Time Slots */}
@@ -245,8 +265,8 @@ export default function CreateBooking() {
                 key={pkg.id}
                 onClick={() => handleFieldChange("selectedPackage", pkg.id)}
                 className={`cursor-pointer rounded-[24px] border p-6 transition-all duration-300 relative overflow-hidden group/pkg ${selectedPackage === pkg.id
-                    ? "bg-indigo-600 border-transparent text-white shadow-xl shadow-indigo-200 -translate-y-1"
-                    : "bg-white border-gray-100 hover:border-indigo-200 text-slate-600"
+                  ? "bg-indigo-600 border-transparent text-white shadow-xl shadow-indigo-200 -translate-y-1"
+                  : "bg-white border-gray-100 hover:border-indigo-200 text-slate-600"
                   }`}
               >
                 {selectedPackage === pkg.id && (
