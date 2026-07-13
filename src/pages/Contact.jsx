@@ -1,6 +1,36 @@
+import { useState } from "react";
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from "lucide-react";
+import { apiService as api } from "../services/api";
+import { useToast } from "../store/contexts/ToastContext";
 
 export default function Contact() {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [inquiryType, setInquiryType] = useState("General Inquiry");
+    const [message, setMessage] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const { success, error: showError } = useToast();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!name.trim() || !email.trim() || !message.trim()) {
+            showError("Please fill in all fields.");
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            await api.submitContactForm({ name, email, inquiryType, message });
+            success("Your inquiry has been submitted successfully!");
+            setName("");
+            setEmail("");
+            setMessage("");
+        } catch (err) {
+            showError(err.response?.data?.error || "Failed to submit inquiry.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
     return (
         <div className="pt-24 pb-20 max-w-7xl mx-auto px-4">
             <div className="text-center mb-16 animate-fade-in">
@@ -73,14 +103,17 @@ export default function Contact() {
                     <h2 className="text-2xl font-black text-gray-900 mb-2">Send a Message</h2>
                     <p className="text-gray-500 text-sm font-medium mb-8">We usually respond within 24 hours.</p>
 
-                    <form className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                                 <input
                                     type="text"
                                     placeholder="Enter your name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     className="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all outline-none"
+                                    required
                                 />
                             </div>
                             <div className="space-y-2">
@@ -88,14 +121,21 @@ export default function Contact() {
                                 <input
                                     type="email"
                                     placeholder="your@email.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all outline-none"
+                                    required
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Inquiry Type</label>
-                            <select className="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all outline-none appearance-none">
+                            <select 
+                                value={inquiryType}
+                                onChange={(e) => setInquiryType(e.target.value)}
+                                className="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all outline-none appearance-none"
+                            >
                                 <option>General Inquiry</option>
                                 <option>Booking Support</option>
                                 <option>Photographer Verification</option>
@@ -108,15 +148,19 @@ export default function Contact() {
                             <textarea
                                 rows="5"
                                 placeholder="Tell us how we can assist you..."
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
                                 className="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/10 focus:bg-white transition-all outline-none resize-none"
+                                required
                             ></textarea>
                         </div>
 
                         <button
-                            type="button"
-                            className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 text-sm uppercase tracking-widest"
+                            type="submit"
+                            disabled={submitting}
+                            className="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 text-sm uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <Send size={18} /> Broadcast Message
+                            <Send size={18} /> {submitting ? "Broadcasting..." : "Broadcast Message"}
                         </button>
                     </form>
                 </div>

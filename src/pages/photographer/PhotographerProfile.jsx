@@ -98,7 +98,7 @@ export default function PhotographerProfile() {
       Array.from(files).forEach(file => formData.append("images", file));
 
       const response = await api.uploadPortfolio(formData);
-      const updatedPortfolio = response.data.portfolio;
+      const updatedPortfolio = response.data.portfolio || response.data.user?.portfolio;
 
       setProfile(prev => ({ ...prev, portfolio: updatedPortfolio }));
       setEditedProfile(prev => ({ ...prev, portfolio: updatedPortfolio }));
@@ -121,8 +121,9 @@ export default function PhotographerProfile() {
     setUploading(true);
     try {
       const response = await api.deletePortfolioImage(publicId);
-      setProfile(prev => ({ ...prev, portfolio: response.data.portfolio }));
-      setEditedProfile(prev => ({ ...prev, portfolio: response.data.portfolio }));
+      const updatedPortfolio = response.data.portfolio || response.data.user?.portfolio;
+      setProfile(prev => ({ ...prev, portfolio: updatedPortfolio }));
+      setEditedProfile(prev => ({ ...prev, portfolio: updatedPortfolio }));
       success("Image removed from portfolio");
     } catch (err) {
       showError("Failed to delete image");

@@ -14,6 +14,8 @@ import Register from "./pages/Register";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 // Client Pages
 import ClientDashboard from "./pages/client/ClientDashboard";
@@ -43,6 +45,7 @@ import AdminActivity from "./pages/admin/AdminActivity";
 
 // Common Pages
 import Chat from "./pages/common/Chat";
+import ChatbotWidget from "./components/common/ChatbotWidget";
 
 export default function App() {
   const { isAuthenticated, user } = useAuth();
@@ -79,6 +82,8 @@ export default function App() {
           path={ROUTES.REGISTER}
           element={isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Register />}
         />
+        <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+        <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
 
         {/* Static Legal & Contact Pages */}
         <Route path="/privacy" element={<Privacy />} />
@@ -152,6 +157,7 @@ export default function App() {
         {/* Catch all - redirect to login */}
         <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
       </Routes>
+      <ChatbotWidget />
     </div>
   );
 }

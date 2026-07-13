@@ -131,7 +131,7 @@ export default function Payment() {
             <div className="flex items-start justify-between mb-8 pb-8 border-b border-gray-100">
               <div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Booking Reference</p>
-                <p className="text-lg font-bold text-gray-900">#{bookingId.slice(-8).toUpperCase()}</p>
+                <p className="text-lg font-bold text-gray-900">#{bookingId?.slice(-8).toUpperCase() || ""}</p>
               </div>
               <div className="text-right">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Due</p>

@@ -38,6 +38,7 @@ export const getStatusColor = (status) => {
   const statusColors = {
     pending: "#ffc107",
     confirmed: "#28a745",
+    declined: "#dc3545",
     in_progress: "#17a2b8",
     completed: "#007bff",
     cancelled: "#dc3545",
@@ -50,6 +51,7 @@ export const getStatusLabel = (status) => {
   const statusLabels = {
     pending: "Pending",
     confirmed: "Confirmed",
+    declined: "Declined",
     in_progress: "In Progress",
     completed: "Completed",
     cancelled: "Cancelled",

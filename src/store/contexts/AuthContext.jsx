@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
-    // This could also be a Redux action if needed, but for now we'll just use the profile fetch logic
+    dispatch(fetchProfile());
   };
 
   const value = {

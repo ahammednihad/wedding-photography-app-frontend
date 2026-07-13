@@ -6,8 +6,8 @@ export const validateEmail = (email) => {
 };
 
 export const validatePassword = (password) => {
-  // At least 8 characters
-  return password.length >= 8;
+  // At least 6 characters
+  return password.length >= 6;
 };
 
 export const validatePhone = (phone) => {
@@ -57,7 +57,7 @@ export const validateForm = (fields, values) => {
     
     // Password validation
     if (field.type === "password" && value && !validatePassword(value)) {
-      errors[fieldName] = "Password must be at least 8 characters";
+      errors[fieldName] = "Password must be at least 6 characters";
       return;
     }
     

@@ -116,9 +116,11 @@ const authSlice = createSlice({
             .addCase(fetchProfile.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
-                // If fetching profile fails, it might mean the token is invalid
-                // but we should be careful about clearing it automatically here
-                // as it might be a temporary network error.
+                state.user = null;
+                state.token = null;
+                state.isAuthenticated = false;
+                localStorage.removeItem(STORAGE_KEYS.TOKEN);
+                localStorage.removeItem(STORAGE_KEYS.USER);
             });
     },
 });

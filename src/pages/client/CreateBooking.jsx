@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { apiService as api } from "../../services/api";
 import { useToast } from "../../store/contexts/ToastContext";
 import { Camera, Check, MapPin, ChevronLeft, User } from "lucide-react";
+import MapPicker from "../../components/common/MapPicker";
 
 const initialState = {
   photographerId: "",
@@ -16,8 +17,6 @@ const initialState = {
   coordinates: { lat: 15.2993, lng: 73.9814 },
   busySlots: [],
 };
-
-import MapPicker from "../../components/common/MapPicker";
 
 function reducer(state, action) {
   switch (action.type) {

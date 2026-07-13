@@ -25,8 +25,14 @@ export default function Register() {
   const onSubmit = async (formValues) => {
     const result = await register(formValues);
     if (result.success) {
-      success("Registration successful! Please login.");
-      navigate(ROUTES.LOGIN);
+      success("Registration successful!");
+      if (result.user?.role === ROLES.ADMIN) {
+        window.location.href = ROUTES.ADMIN_DASHBOARD;
+      } else if (result.user?.role === ROLES.PHOTOGRAPHER) {
+        window.location.href = ROUTES.PHOTOGRAPHER_DASHBOARD;
+      } else {
+        window.location.href = ROUTES.CLIENT_DASHBOARD;
+      }
     } else {
       showError(result.error || "Registration failed");
     }

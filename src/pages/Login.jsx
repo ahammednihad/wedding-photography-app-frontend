@@ -21,10 +21,6 @@ export default function Login() {
   );
 
   const onSubmit = async (formValues) => {
-    // Clear any existing stale data before attempting login
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
     const result = await login(formValues);
     if (result.success) {
       success("Welcome back!");
@@ -77,7 +73,7 @@ export default function Login() {
           <div>
             <div className="flex justify-between items-center mb-1.5">
               <label className="block text-sm font-bold text-gray-700">Password</label>
-              <a href="#" className="text-xs text-blue-600 font-bold hover:underline">Forgot?</a>
+              <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs text-blue-600 font-bold hover:underline">Forgot?</Link>
             </div>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">

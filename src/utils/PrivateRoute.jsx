@@ -19,8 +19,7 @@ export default function PrivateRoute({ children, allowedRoles = [] }) {
       // Corrupted state: Authenticated but no valid user data
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = ROUTES.LOGIN;
-      return null;
+      return <Navigate to={ROUTES.LOGIN} replace />;
     }
 
     if (!allowedRoles.includes(user.role)) {

@@ -61,6 +61,8 @@ export const apiService = {
   // Auth
   login: (email, password) => apiClient.post("/auth/login", { email, password }),
   register: (data) => apiClient.post("/auth/register", data),
+  forgotPassword: (email) => apiClient.post("/auth/forgot-password", { email }),
+  resetPassword: (token, password) => apiClient.post(`/auth/reset-password/${token}`, { password }),
 
   // Profile (Dynamic based on role)
   getProfile: () => {
@@ -91,9 +93,17 @@ export const apiService = {
   addFavorite: (data) => apiClient.post("/client/favorites", data),
   removeFavorite: (id) => apiClient.delete(`/client/favorites/${id}`),
 
-  uploadAvatar: (formData) => apiClient.post("/photographer/upload/avatar", formData),
+  uploadAvatar: (formData) => apiClient.post("/photographer/upload/avatar", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }),
 
-  uploadPortfolio: (formData) => apiClient.post("/photographer/upload/portfolio", formData),
+  uploadPortfolio: (formData) => apiClient.post("/photographer/upload/portfolio", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }),
 
   deletePortfolioImage: (publicId) => apiClient.delete(`/photographer/upload/portfolio/${publicId}`),
   getPhotographerStats: () => apiClient.get("/photographer/stats"),
@@ -135,11 +145,13 @@ export const apiService = {
   getAvailability: (id) => apiClient.get(`/public/availability/${id}`),
   getBusySlots: (id, date) => apiClient.get(`/public/busy-slots/${id}?date=${date}`),
   getReviews: (id) => apiClient.get(`/public/reviews/${id}`),
+  submitContactForm: (data) => apiClient.post("/public/contact", data),
 
   // Chat
   getChatHistory: (bookingId) => apiClient.get(`/chat/history/${bookingId}`),
   sendChatMessage: (data) => apiClient.post("/chat/send", data),
   getChatInbox: (id) => apiClient.get(`/chat/inbox/${id}`),
+  sendChatbotMessage: (message) => apiClient.post("/chatbot", { message }),
 };
 
 export default apiClient;

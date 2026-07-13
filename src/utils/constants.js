@@ -6,6 +6,8 @@ export const ROUTES = {
   // Auth
   LOGIN: "/login",
   REGISTER: "/register",
+  FORGOT_PASSWORD: "/forgot-password",
+  RESET_PASSWORD: "/reset-password/:token",
 
   // Client
   CLIENT_DASHBOARD: "/client/dashboard",
@@ -37,6 +39,7 @@ export const ROLES = {
 export const BOOKING_STATUS = {
   PENDING: "pending",
   CONFIRMED: "confirmed",
+  DECLINED: "declined",
   IN_PROGRESS: "in_progress",
   COMPLETED: "completed",
   CANCELLED: "cancelled",
@@ -46,6 +49,7 @@ export const BOOKING_STATUS = {
 export const STATUS_COLORS = {
   pending: "#ffc107",
   confirmed: "#28a745",
+  declined: "#dc3545",
   in_progress: "#17a2b8",
   completed: "#007bff",
   cancelled: "#dc3545",
