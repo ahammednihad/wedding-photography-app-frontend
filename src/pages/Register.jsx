@@ -37,6 +37,7 @@ export default function Register() {
       showError(result.error || "Registration failed");
     }
   };
+  console.log(name);
 
   return (
     <div className="min-h-screen bg-blue-50/50 flex items-center justify-center p-4">

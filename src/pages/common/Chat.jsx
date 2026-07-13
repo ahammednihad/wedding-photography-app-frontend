@@ -4,8 +4,12 @@ import { apiService } from "../../services/api";
 import { useAuth } from "../../store/contexts/AuthContext";
 import { Send, ArrowLeft, MessageSquare, User } from "lucide-react";
 import io from "socket.io-client";
+import { API_BASE_URL } from "../../utils/constants";
 
-const SOCKET_URL = "http://localhost:5000";
+// Derives socket server URL by stripping the '/api' path suffix from the API base URL
+const SOCKET_URL = API_BASE_URL.endsWith("/api")
+  ? API_BASE_URL.slice(0, -4)
+  : API_BASE_URL;
 
 export default function Chat() {
     const { bookingId } = useParams();
