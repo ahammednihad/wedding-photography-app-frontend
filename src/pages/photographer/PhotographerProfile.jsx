@@ -1,165 +1,202 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { Layout } from "@/components/Layout";
-import { API_BASE } from "@/config/api";
-import { getAuthHeaders } from "@/utils/auth";
+import { useState, useEffect } from 'react';
+import { apiService as api } from '../../services/api';
+import { useAuth } from '../../store/contexts/AuthContext';
+import { useToast } from '../../store/contexts/ToastContext';
+import { Camera, Upload, Trash2, User, Image as ImageIcon, RefreshCw } from 'lucide-react';
+
 export default function PhotographerProfile() {
+  const { user } = useAuth();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState(null);
   const [portfolio, setPortfolio] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/photographer/profile`, {
-        headers: getAuthHeaders(),
-      });
-      setProfile(res.data);
-      setPortfolio(res.data?.portfolio || res.data?.images || []);
+      setLoading(true);
+      const res = await api.getProfile();
+      if (res.data) {
+        setProfile(res.data);
+        setPortfolio(res.data.portfolio || res.data.images || []);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to load profile');
+      console.error("Error loading profile:", err);
+      showToast(err.response?.data?.message || "Could not load profile data", "error");
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchProfile();
   }, []);
+
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
+
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!selectedFile) {
-      setError('Please select an image file to upload.');
+      showToast("Please select an image file to upload", "error");
       return;
     }
-    setUploading(true);
-    setError('');
-    setSuccess('');
+
     try {
+      setUploading(true);
       const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('portfolio', selectedFile);
-      formData.append('image', selectedFile);
-      const res = await axios.post(`${API_BASE}/photographer/upload/portfolio`, formData, {
-        headers: {
-          ...getAuthHeaders(),
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      setSuccess('Portfolio photo uploaded successfully!');
+      formData.append("file", selectedFile);
+      formData.append("portfolio", selectedFile);
+      formData.append("image", selectedFile);
+
+      const res = await api.uploadPortfolio(formData);
+      showToast("Portfolio image uploaded successfully!", "success");
       setSelectedFile(null);
-      const fileInput = document.getElementById('portfolioFileInput');
-      if (fileInput) fileInput.value = '';
+      
+      const fileInput = document.getElementById("portfolioFileInput");
+      if (fileInput) fileInput.value = "";
+
       if (res.data?.portfolio || res.data?.images) {
         setPortfolio(res.data.portfolio || res.data.images);
-      } else if (res.data?.image || res.data?.url) {
-        setPortfolio((prev) => [...prev, res.data.image || res.data]);
       } else {
         await fetchProfile();
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to upload photo');
+      console.error("Upload error:", err);
+      showToast(err.response?.data?.message || err.response?.data?.error || "Failed to upload image", "error");
     } finally {
       setUploading(false);
     }
   };
+
   const handleDelete = async (item) => {
     const idToDelete = item.publicId || item.public_id || item.id || item._id || item;
     if (!idToDelete) return;
-    if (!window.confirm('Are you sure you want to delete this photo from your portfolio?')) return;
-    setDeletingId(idToDelete);
-    setError('');
-    setSuccess('');
+    if (!window.confirm("Are you sure you want to delete this photo from your portfolio?")) return;
+
     try {
-      await axios.delete(`${API_BASE}/photographer/upload/portfolio/${encodeURIComponent(idToDelete)}`, {
-        headers: getAuthHeaders(),
-      });
-      setSuccess('Portfolio photo deleted successfully!');
+      setDeletingId(idToDelete);
+      await api.deletePortfolioImage(idToDelete);
+      showToast("Photo deleted successfully", "success");
       setPortfolio((prev) => prev.filter((img) => {
         const imgId = img.publicId || img.public_id || img.id || img._id || img;
         return imgId !== idToDelete;
       }));
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to delete photo');
+      console.error("Delete error:", err);
+      showToast(err.response?.data?.message || err.response?.data?.error || "Failed to delete photo", "error");
     } finally {
       setDeletingId(null);
     }
   };
-  if (loading) return <Layout title="My Profile"><div className="text-center py-5"><div className="spinner-border text-primary" /></div></Layout>;
+
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] space-y-4">
+        <div className="h-10 w-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] animate-pulse">Loading Profile</p>
+      </div>
+    );
+  }
+
   return (
-    <Layout title="My Profile">
-      {error && <div className="alert alert-danger alert-dismissible fade show">{error}<button type="button" className="btn-close" onClick={() => setError('')}></button></div>}
-      {success && <div className="alert alert-success alert-dismissible fade show">{success}<button type="button" className="btn-close" onClick={() => setSuccess('')}></button></div>}
-      <div className="card mb-4 shadow-sm">
-        <div className="card-body">
-          <h5 className="card-title mb-3">Photographer Profile</h5>
-          <p className="mb-1"><strong>Name:</strong> {profile?.name ?? '—'}</p>
-          <p className="mb-1"><strong>Email:</strong> {profile?.email ?? '—'}</p>
-          <p className="mb-0"><strong>Role:</strong> Photographer</p>
+    <div className="space-y-10">
+      {/* Header / Basic Info */}
+      <div className="bg-white p-8 md:p-10 rounded-[40px] border border-zinc-100 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <div className="h-20 w-20 rounded-[28px] bg-zinc-900 flex items-center justify-center text-emerald-400 shadow-xl shadow-zinc-200 shrink-0">
+            <User size={32} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-1">Photographer Profile</p>
+            <h1 className="text-3xl font-black text-zinc-900 tracking-tight">{profile?.name || user?.name}</h1>
+            <p className="text-zinc-400 font-bold text-xs uppercase tracking-widest mt-1">{profile?.email || user?.email}</p>
+          </div>
         </div>
       </div>
-      <div className="card shadow-sm mb-4">
-        <div className="card-header bg-white py-3">
-          <h5 className="mb-0">Manage Portfolio</h5>
+
+      {/* Portfolio Section */}
+      <div className="bg-white rounded-[40px] border border-zinc-100 shadow-sm p-8 md:p-10 space-y-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 pb-6">
+          <div>
+            <h2 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-3">
+              <Camera className="text-emerald-500" size={24} /> My Portfolio
+            </h2>
+            <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mt-1">Upload and manage showcase photos</p>
+          </div>
+          <span className="px-4 py-1.5 bg-emerald-50 text-emerald-700 font-black text-xs rounded-full uppercase tracking-wider">
+            {portfolio.length} Photos
+          </span>
         </div>
-        <div className="card-body">
-          <form onSubmit={handleUpload} className="mb-4">
-            <label className="form-label font-weight-bold">Upload New Photo</label>
-            <div className="input-group">
-              <input
-                type="file"
-                id="portfolioFileInput"
-                className="form-control"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={uploading}
-              />
-              <button className="btn btn-primary" type="submit" disabled={uploading || !selectedFile}>
-                {uploading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Uploading...
-                  </>
-                ) : (
-                  'Upload Photo'
-                )}
-              </button>
-            </div>
-          </form>
-          <h6 className="mb-3">Portfolio Photos ({portfolio.length})</h6>
+
+        {/* Upload Form */}
+        <form onSubmit={handleUpload} className="bg-zinc-50 p-6 rounded-[28px] border border-zinc-200/60 space-y-4">
+          <label className="block text-xs font-black text-zinc-700 uppercase tracking-widest">Add New Portfolio Image</label>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="file"
+              id="portfolioFileInput"
+              accept="image/*"
+              onChange={handleFileChange}
+              disabled={uploading}
+              className="flex-1 text-xs text-zinc-600 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:text-xs file:font-black file:uppercase file:tracking-wider file:bg-zinc-900 file:text-white hover:file:bg-black transition-all cursor-pointer"
+            />
+            <button
+              type="submit"
+              disabled={uploading || !selectedFile}
+              className="px-8 py-3.5 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 active:scale-95"
+            >
+              {uploading ? (
+                <>
+                  <RefreshCw className="animate-spin" size={16} /> Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload size={16} /> Upload Image
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Portfolio Gallery */}
+        <div>
           {portfolio.length === 0 ? (
-            <p className="text-muted italic">No portfolio photos uploaded yet.</p>
+            <div className="py-16 text-center border-2 border-dashed border-zinc-200 rounded-[32px]">
+              <ImageIcon className="mx-auto text-zinc-300 mb-3" size={40} />
+              <p className="text-sm font-bold text-zinc-500">No portfolio images uploaded yet.</p>
+              <p className="text-xs text-zinc-400 mt-1">Upload your first photo above to showcase your work.</p>
+            </div>
           ) : (
-            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {portfolio.map((img, idx) => {
                 const imgUrl = typeof img === 'string' ? img : (img.url || img.secure_url || img.path);
                 const imgId = typeof img === 'string' ? img : (img.publicId || img.public_id || img.id || img._id || idx);
+
                 return (
-                  <div className="col" key={imgId || idx}>
-                    <div className="card h-100 shadow-sm overflow-hidden">
-                      <div style={{ height: '180px', backgroundColor: '#f8f9fa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {imgUrl ? (
-                          <img src={imgUrl} alt={`Portfolio ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : (
-                          <span className="text-muted">No Image</span>
-                        )}
-                      </div>
-                      <div className="card-footer bg-white text-end py-2">
-                        <button
-                          className="btn btn-outline-danger btn-sm"
-                          onClick={() => handleDelete(img)}
-                          disabled={deletingId === imgId}
-                        >
-                          {deletingId === imgId ? 'Deleting...' : 'Delete'}
-                        </button>
-                      </div>
+                  <div key={imgId || idx} className="group relative rounded-[28px] overflow-hidden border border-zinc-200/80 bg-zinc-100 shadow-sm hover:shadow-md transition-all">
+                    <div className="h-60 w-full overflow-hidden">
+                      <img
+                        src={imgUrl}
+                        alt={`Portfolio item ${idx + 1}`}
+                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-4">
+                      <span className="text-[10px] font-bold text-white uppercase tracking-wider">Photo #{idx + 1}</span>
+                      <button
+                        onClick={() => handleDelete(img)}
+                        disabled={deletingId === imgId}
+                        className="px-3 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition-all flex items-center gap-1.5 shadow-lg active:scale-95 disabled:opacity-50"
+                      >
+                        <Trash2 size={14} />
+                        {deletingId === imgId ? 'Deleting...' : 'Delete'}
+                      </button>
                     </div>
                   </div>
                 );
@@ -168,6 +205,7 @@ export default function PhotographerProfile() {
           )}
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
+
