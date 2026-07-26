@@ -18,7 +18,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const { values, errors, handleChange, handleBlur, handleSubmit } = useForm(
-    { name: "", email: "", password: "", role: "client" },
+    { name: "", email: "", password: "" },
     validationSchema
   );
 
